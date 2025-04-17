@@ -19,8 +19,8 @@ class TestYandexAuthFirefox(unittest.TestCase):
         self.password = os.getenv("YANDEX_PASSWORD")
 
         options = Options()
-        options.add_argument("--headless")
-        self.service = Service(executable_path='/usr/bin/geckodriver')
+        # options.add_argument("--headless")
+        self.service = Service(executable_path='/snap/bin/geckodriver')  # Оставьте, если geckodriver работает только так
         self.driver = webdriver.Firefox(service=self.service, options=options)
         self.driver.implicitly_wait(10)
 
@@ -31,15 +31,15 @@ class TestYandexAuthFirefox(unittest.TestCase):
         self.driver.get("https://passport.yandex.ru/auth/")
 
         # Ввод логина
-        login_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "passp-field-login"))
+        login_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='login']"))  # Используем CSS-селектор
         )
         login_field.send_keys(self.login)
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
 
         # Ввод пароля
-        password_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "passp-field-passwd"))
+        password_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='passwd']"))  # Используем CSS-селектор
         )
         password_field.send_keys(self.password)
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
@@ -56,15 +56,15 @@ class TestYandexAuthFirefox(unittest.TestCase):
         self.driver.get("https://passport.yandex.ru/auth/")
 
         # Ввод логина
-        login_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "passp-field-login"))
+        login_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='login']"))  # Используем CSS-селектор
         )
         login_field.send_keys(self.login)
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
 
         # Ввод неверного пароля
-        password_field = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "passp-field-passwd"))
+        password_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='passwd']"))  # Используем CSS-селектор
         )
         password_field.send_keys("incorrect_password")  # Используем неверный пароль
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
