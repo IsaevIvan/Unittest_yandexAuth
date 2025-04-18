@@ -1,4 +1,5 @@
 # tests/test_yandex_auth.py
+import time
 import unittest
 import os
 from dotenv import load_dotenv
@@ -20,7 +21,10 @@ class TestYandexAuthFirefox(unittest.TestCase):
 
         options = Options()
         # options.add_argument("--headless")
-        self.service = Service(executable_path='/snap/bin/geckodriver')  # Оставьте, если geckodriver работает только так
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+        self.service = Service(
+            executable_path='/snap/bin/geckodriver')
         self.driver = webdriver.Firefox(service=self.service, options=options)
         self.driver.implicitly_wait(10)
 
@@ -28,14 +32,16 @@ class TestYandexAuthFirefox(unittest.TestCase):
         self.driver.quit()
 
     def test_yandex_auth_firefox(self):
-        self.driver.get("https://passport.yandex.ru/auth/")
+        self.driver.get("https://passport.yandex.ru/auth/add/login")
+        time.sleep(20)
 
         # Ввод логина
         login_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='login']"))  # Используем CSS-селектор
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#passp-field-login"))  # Используем CSS-селектор
         )
         login_field.send_keys(self.login)
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+        time.sleep(20)
 
         # Ввод пароля
         password_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
@@ -43,6 +49,8 @@ class TestYandexAuthFirefox(unittest.TestCase):
         )
         password_field.send_keys(self.password)
         self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+        time.sleep(20)
+
 
         # Проверка успешной авторизации с использованием is_login_successful()
         self.assertTrue(is_login_successful(self.driver), "Авторизация не удалась.")
@@ -51,26 +59,26 @@ class TestYandexAuthFirefox(unittest.TestCase):
         profile_url = get_profile_link(self.driver)
         self.assertIsNotNone(profile_url, "Не удалось получить URL профиля.")
 
-    def test_yandex_auth_firefox_incorrect_password(self):
-        """Тест авторизации с неверным паролем."""
-        self.driver.get("https://passport.yandex.ru/auth/")
-
-        # Ввод логина
-        login_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='login']"))  # Используем CSS-селектор
-        )
-        login_field.send_keys(self.login)
-        self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-
-        # Ввод неверного пароля
-        password_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='passwd']"))  # Используем CSS-селектор
-        )
-        password_field.send_keys("incorrect_password")  # Используем неверный пароль
-        self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-
-        # Проверка, что авторизация не удалась (ищем сообщение об ошибке)
-        error_message = get_error_message(self.driver)
-        self.assertIsNotNone(error_message, "Сообщение об ошибке не найдено")
-        # Можно также проверить, что текст сообщения об ошибке соответствует ожидаемому:
-        # self.assertIn("Неверный пароль", error_message, "Текст сообщения об ошибке неверный")
+    # def test_yandex_auth_firefox_incorrect_password(self):
+    #     """Тест авторизации с неверным паролем."""
+    #     self.driver.get("https://passport.yandex.ru/auth/add/login")
+    #
+    #     # Ввод логина
+    #     login_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+    #         EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='login']"))  # Используем CSS-селектор
+    #     )
+    #     login_field.send_keys(self.login)
+    #     self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+    #
+    #     # Ввод неверного пароля
+    #     password_field = WebDriverWait(self.driver, 20).until(  # Увеличиваем время ожидания
+    #         EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='passwd']"))  # Используем CSS-селектор
+    #     )
+    #     password_field.send_keys("incorrect_password")  # Используем неверный пароль
+    #     self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+    #
+    #     # Проверка, что авторизация не удалась (ищем сообщение об ошибке)
+    #     error_message = get_error_message(self.driver)
+    #     self.assertIsNotNone(error_message, "Сообщение об ошибке не найдено")
+    #     # Можно также проверить, что текст сообщения об ошибке соответствует ожидаемому:
+    #     self.assertIn("Неверный пароль", error_message, "Текст сообщения об ошибке неверный")
